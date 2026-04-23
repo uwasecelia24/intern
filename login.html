@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agricom | Admin Portal</title>
+<link href="agricom-dashboard.htmlvb
+" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-dark: #27500A;
+    --green-mid: #3B6D11;
+    --green-main: #639922;
+    --green-light: #C0DD97;
+    --green-pale: #EAF3DE;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --text-dark: #1a1a1a;
+    --text-mid: #4a4a4a;
+    --text-muted: #7a7a7a;
+    --border: #d8e8c0;
+    --white: #ffffff;
+    --surface: #f8fdf2;
+    --danger: #A32D2D;
+    --danger-bg: #FCEBEB;
+    --success: #3B6D11;
+    --success-bg: #EAF3DE;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ── LAYOUT ── */
+  .auth-wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .auth-side {
+    width: 420px;
+    flex-shrink: 0;
+    background: var(--green-dark);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem 2.5rem;
+  }
+
+  .auth-side::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: rgba(99,153,34,0.25);
+  }
+  .auth-side::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: rgba(192,221,151,0.12);
+  }
+
+  .side-logo {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+    position: relative; z-index: 1;
+  }
+  .side-logo span { color: var(--green-light); }
+
+  .side-tagline {
+    position: relative; z-index: 1;
+  }
+  .side-tagline h2 {
+    font-family: 'Playfair Display', serif;
+    color: var(--white);
+    font-size: 1.75rem;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+  .side-tagline p {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .side-stats {
+    display: flex;
+    gap: 1.5rem;
+    position: relative; z-index: 1;
+  }
+  .stat-box {
+    text-align: center;
+  }
+  .stat-box .num {
+    font-family: 'Playfair Display', serif;
+    color: var(--green-light);
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .stat-box .lbl {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .auth-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    width: 100%;
+    max-width: 420px;
+    animation: fadeUp 0.35s ease;
+  }
+  .screen.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .screen-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    color: var(--green-dark);
+    margin-bottom: 0.35rem;
+  }
+  .screen-sub {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+  .screen-sub a {
+    color: var(--green-main);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ── FORM ── */
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-mid);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus {
+    border-color: var(--green-main);
+    box-shadow: 0 0 0 3px rgba(99,153,34,0.12);
+  }
+  .form-group input.error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(163,45,45,0.1);
+  }
+  .field-error {
+    font-size: 0.78rem;
+    color: var(--danger);
+    margin-top: 4px;
+    display: none;
+  }
+  .field-error.show { display: block; }
+
+  .input-wrap {
+    position: relative;
+  }
+  .input-wrap input { padding-right: 2.8rem; }
+  .toggle-pw {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    user-select: none;
+  }
+  .toggle-pw:hover { color: var(--green-main); }
+
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+  }
+  .remember-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+  .remember-wrap input[type="checkbox"] {
+    accent-color: var(--green-main);
+    width: 15px; height: 15px;
+    cursor: pointer;
+  }
+  .forgot-link {
+    color: var(--green-main);
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .forgot-link:hover { text-decoration: underline; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--green-main);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { background: var(--green-mid); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { background: var(--green-light); cursor: not-allowed; }
+
+  .btn-ghost {
+    width: 100%;
+    padding: 0.85rem;
+    background: transparent;
+    color: var(--green-dark);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--green-main); background: var(--green-pale); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── ALERT ── */
+  .alert {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-bottom: 1.2rem;
+    display: none;
+  }
+  .alert.show { display: flex; align-items: flex-start; gap: 0.5rem; }
+  .alert-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #f7c1c1; }
+  .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #c0dd97; }
+
+  /* ── PASSWORD STRENGTH ── */
+  .pw-strength {
+    margin-top: 0.4rem;
+    display: none;
+  }
+  .pw-strength.show { display: block; }
+  .strength-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .strength-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.3s, background 0.3s;
+    width: 0%;
+  }
+  .strength-label { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ── BACK LINK ── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--green-main); }
+
+  /* ── OTP / RESET ── */
+  .otp-hint {
+    background: var(--amber-light);
+    border: 1px solid #fac775;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── PROGRESS DOTS ── */
+  .steps-dots {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .step-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s, width 0.2s;
+  }
+  .step-dot.active {
+    background: var(--green-main);
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  /* ────────────────────────────────
+     DASHBOARD
+  ──────────────────────────────── */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g50:#EAF3DE;--g100:#C0DD97;--g200:#97C459;--g400:#639922;--g600:#3B6D11;
+  --g800:#27500A;--g900:#173404;
+  --t50:#E1F5EE;--t800:#085041;
+  --a50:#FAEEDA;--a200:#EF9F27;--a800:#633806;
+  --r400:#E24B4A;--r600:#A32D2D;
+  --b50:#E6F1FB;--b800:#0C447C;
+  --border:#C0DD97;--bg:#EAF3DE;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:var(--bg);color:var(--g900);min-height:100vh;}
+.app{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:215px;flex-shrink:0;background:var(--g900);display:flex;flex-direction:column;padding:1.25rem 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sb-logo{padding:0 1.25rem 1.1rem;color:var(--g100);font-size:18px;font-weight:700;border-bottom:1px solid var(--g800);margin-bottom:1rem;letter-spacing:-.3px;}
+.sb-logo small{display:block;font-size:11px;color:var(--g400);font-weight:400;margin-top:2px;}
+.nav-section{padding:0 .75rem;margin-bottom:1rem;}
+.nav-label{font-size:10px;color:var(--g400);padding:0 .5rem;margin-bottom:4px;text-transform:uppercase;letter-spacing:.7px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--g200);font-size:13px;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--g800);color:var(--g100);}
+.nav-item.active{background:var(--g600);color:var(--g100);font-weight:500;}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--g400);color:var(--g50);font-size:10px;padding:1px 7px;border-radius:10px;}
+.sb-footer{margin-top:auto;padding:0 .75rem;}
+.user-pill{display:flex;align-items:center;gap:9px;padding:9px 10px;background:var(--g800);border-radius:8px;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--g600);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--g100);flex-shrink:0;}
+.user-name{font-size:12px;font-weight:500;color:var(--g100);}
+.user-role{font-size:10px;color:var(--g400);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:var(--g800);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.topbar-title{font-size:14px;font-weight:500;color:var(--g100);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.tb-pill{font-size:11px;color:var(--g200);background:var(--g900);border:1px solid var(--g600);padding:5px 12px;border-radius:6px;cursor:pointer;transition:background .15s;}
+.tb-pill:hover{background:var(--g600);color:var(--g100);}
+.tb-pill.primary{background:var(--g600);color:var(--g100);}
+.tb-pill.primary:hover{background:var(--g400);}
+
+/* PAGES */
+.page{display:none;padding:1.25rem 1.5rem;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.card-title{font-size:12px;font-weight:600;color:var(--g900);}
+.card-action{font-size:11px;color:var(--g600);border:1px solid var(--border);padding:3px 9px;border-radius:5px;cursor:pointer;background:none;transition:background .15s;}
+.card-action:hover{background:var(--g50);}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:1.25rem;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;}
+.stat-icon{width:32px;height:32px;border-radius:7px;background:var(--g50);display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.stat-icon svg{width:16px;height:16px;}
+.stat-label{font-size:11px;color:var(--g600);margin-bottom:4px;}
+.stat-value{font-size:22px;font-weight:700;color:var(--g900);margin-bottom:4px;}
+.stat-change{font-size:10px;}
+.up{color:var(--g600);}
+.dn{color:var(--r600);}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{text-align:left;padding:8px 12px;font-size:11px;font-weight:500;color:var(--g600);border-bottom:1px solid var(--border);background:var(--g50);}
+tbody tr{border-bottom:1px solid var(--g50);transition:background .1s;}
+tbody tr:last-child{border:none;}
+tbody tr:hover{background:var(--g50);}
+tbody td{padding:9px 12px;color:var(--g900);vertical-align:middle;}
+
+/* PILLS */
+.pill{font-size:10px;padding:2px 8px;border-radius:10px;white-space:nowrap;font-weight:500;}
+.pill-green{background:var(--g50);color:var(--g800);}
+.pill-amber{background:var(--a50);color:var(--a800);}
+.pill-blue{background:var(--b50);color:var(--b800);}
+.pill-red{background:#FEE2E2;color:var(--r600);}
+.pill-teal{background:var(--t50);color:var(--t800);}
+
+/* AVATAR */
+.avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
+
+/* TOOLBAR ROW */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.search-input{font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--g50);color:var(--g900);outline:none;width:200px;}
+.search-input:focus{border-color:var(--g400);}
+.filter-sel{font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--g50);color:var(--g900);outline:none;cursor:pointer;}
+.btn{font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--g600);background:var(--g600);color:#fff;cursor:pointer;font-weight:500;transition:background .15s;}
+.btn:hover{background:var(--g800);}
+.btn-outline{background:#fff;color:var(--g600);}
+.btn-outline:hover{background:var(--g50);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(23,52,4,.55);z-index:200;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:12px;padding:1.5rem;width:420px;max-width:92vw;max-height:90vh;overflow-y:auto;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;}
+.modal-title{font-size:15px;font-weight:600;color:var(--g900);}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--g400);line-height:1;}
+.form-group{margin-bottom:12px;}
+.form-label{font-size:11px;color:var(--g600);display:block;margin-bottom:4px;font-weight:500;}
+.form-input,.form-select,.form-textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--g900);background:var(--g50);outline:none;font-family:inherit;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--g400);}
+.form-textarea{height:80px;resize:vertical;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-actions{display:flex;gap:8px;margin-top:1rem;}
+
+/* CHART */
+.bars-wrap{display:flex;align-items:flex-end;gap:5px;height:130px;margin-top:8px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;}
+.bar{width:100%;border-radius:3px 3px 0 0;cursor:pointer;transition:opacity .15s;}
+.bar:hover{opacity:.75;}
+.bar-lbl{font-size:9px;color:var(--g400);}
+
+/* ROW GRIDS */
+.row2{display:grid;grid-template-columns:1.6fr 1fr;gap:12px;margin-bottom:1.25rem;}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem;}
+.row2b{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;}
+
+/* PROGRESS */
+.prog{height:5px;background:var(--g50);border-radius:3px;margin-top:4px;}
+.prog-fill{height:100%;border-radius:3px;}
+
+/* DELIVERY TRACK */
+.track-steps{display:flex;align-items:center;gap:0;margin:12px 0 4px;}
+.track-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
+.track-step:not(:last-child)::after{content:'';position:absolute;top:10px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;}
+.track-step.done::after{background:var(--g400);}
+.ts-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:#fff;z-index:1;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--g400);}
+.track-step.done .ts-dot{background:var(--g400);border-color:var(--g400);color:#fff;}
+.track-step.active .ts-dot{background:#fff;border-color:var(--g400);color:var(--g400);box-shadow:0 0 0 3px var(--g50);}
+.ts-label{font-size:9px;color:var(--g400);text-align:center;}
+.track-step.done .ts-label,.track-step.active .ts-label{color:var(--g600);}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:1.5rem;margin-top:8px;}
+.donut-legend{display:flex;flex-direction:column;gap:6px;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--g800);}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ACTIVITY */
+.act-list{display:flex;flex-direction:column;gap:10px;}
+.act-item{display:flex;gap:10px;}
+.act-line{display:flex;flex-direction:column;align-items:center;}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.act-conn{width:1px;flex:1;background:var(--border);margin:3px 0;}
+.act-body{flex:1;}
+.act-text{font-size:11px;line-height:1.4;color:var(--g600);}
+.act-text strong{color:var(--g900);font-weight:500;}
+.act-time{font-size:10px;color:var(--g400);margin-top:1px;}
+
+/* REPORT CARD */
+.report-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}
+.rk{background:var(--g50);border-radius:8px;padding:10px 12px;}
+.rk-label{font-size:10px;color:var(--g600);margin-bottom:3px;}
+.rk-val{font-size:18px;font-weight:700;color:var(--g900);}
+.rk-sub{font-size:10px;color:var(--g400);margin-top:1px;}
+
+/* DROPDOWN MENUS */
+.dropdown{position:relative;display:inline-block;}
+.dropdown-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--border);border-radius:9px;min-width:190px;box-shadow:0 8px 24px rgba(23,52,4,.13);z-index:100;overflow:hidden;}
+.dropdown-menu.open{display:block;}
+.dropdown-menu-header{padding:10px 14px 8px;border-bottom:1px solid var(--g50);}
+.dropdown-menu-header .dm-name{font-size:13px;font-weight:600;color:var(--g900);}
+.dropdown-menu-header .dm-email{font-size:11px;color:var(--g400);margin-top:1px;}
+.dm-item{display:flex;align-items:center;gap:9px;padding:9px 14px;font-size:12px;color:var(--g800);cursor:pointer;transition:background .12s;border:none;background:none;width:100%;text-align:left;}
+.dm-item:hover{background:var(--g50);}
+.dm-item svg{width:14px;height:14px;flex-shrink:0;color:var(--g400);}
+.dm-item.danger{color:var(--r600);}
+.dm-item.danger svg{color:var(--r400);}
+.dm-divider{height:1px;background:var(--g50);margin:3px 0;}
+
+/* TOPBAR USER BUTTON */
+.tb-user{display:flex;align-items:center;gap:7px;padding:4px 10px 4px 5px;background:var(--g900);border:1px solid var(--g600);border-radius:7px;cursor:pointer;transition:background .15s;font-size:12px;color:var(--g200);}
+.tb-user:hover{background:var(--g800);}
+.tb-user-av{width:24px;height:24px;border-radius:50%;background:var(--g600);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--g100);}
+
+/* LANG SWITCHER */
+.lang-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--g900);border:1px solid var(--g600);border-radius:6px;cursor:pointer;font-size:11px;color:var(--g200);transition:background .15s;}
+.lang-btn:hover{background:var(--g800);}
+.lang-flag{font-size:13px;line-height:1;}
+.lang-item{display:flex;align-items:center;gap:9px;padding:8px 14px;font-size:12px;color:var(--g800);cursor:pointer;transition:background .12s;border:none;background:none;width:100%;text-align:left;}
+.lang-item:hover{background:var(--g50);}
+.lang-item.active-lang{background:var(--g50);font-weight:600;color:var(--g600);}
+.lang-item .lang-flag{font-size:14px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--g800);color:var(--g100);font-size:12px;padding:10px 18px;border-radius:8px;box-shadow:0 4px 14px rgba(23,52,4,.3);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s ease;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* SIGN OUT CONFIRM */
+.signout-modal{background:#fff;border-radius:12px;padding:1.8rem;width:340px;max-width:92vw;text-align:center;}
+.signout-icon{width:48px;height:48px;border-radius:50%;background:#FEE2E2;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.signout-icon svg{width:22px;height:22px;color:var(--r600);}
+.signout-title{font-size:16px;font-weight:700;color:var(--g900);margin-bottom:6px;}
+.signout-sub{font-size:12px;color:var(--g600);margin-bottom:1.4rem;}
+.signout-actions{display:flex;gap:8px;justify-content:center;}
+
+/* ADMIN USERS PAGE */
+.admin-users-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem;}
+.admin-user-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1.1rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;transition:box-shadow .15s;}
+.admin-user-card:hover{box-shadow:0 4px 16px rgba(23,52,4,.1);}
+.auc-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;}
+.auc-name{font-size:13px;font-weight:600;color:var(--g900);}
+.auc-role{font-size:11px;color:var(--g600);}
+.auc-email{font-size:11px;color:var(--g400);}
+.auc-actions{display:flex;gap:6px;margin-top:4px;}
+
+/* SIDEBAR USER PILL CLICKABLE */
+.user-pill{cursor:pointer;transition:background .15s;}
+.user-pill:hover{background:var(--g700,#2e5c0e);}
+
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .stats-grid,.row2,.row3,.row2b,.admin-users-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- <div class="auth-wrapper" id="authWrapper"> -->
+
+  <!-- ── DECORATIVE SIDE PANEL ── -->
+  <!-- <aside class="auth-side" id="authSide">
+    <div class="side-logo">AGRI<span>COM</span></div>
+    <div class="side-tagline">
+      <h2>Grow smarter, manage better.</h2>
+      <p>Your central hub for managing products, orders, and agricultural operations — all from one place.</p>
+    </div>
+    <div class="side-stats">
+      <div class="stat-box">
+        <div class="num">1.2K+</div>
+        <div class="lbl">Products</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">340+</div>
+        <div class="lbl">Orders/mo</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">98%</div>
+        <div class="lbl">Delivery Rate</div>
+      </div>
+    </div>
+  </aside> -->
+
+  <!-- ── AUTH MAIN AREA ── -->
+  <main class="auth-main" id="authMain">
+
+    <!-- ════════════ LOGIN ════════════ -->
+    <div class="screen active" id="screen-login">
+      <h1 class="screen-title">Welcome back</h1>
+      <p class="screen-sub">Admin portal — <a onclick="showScreen('screen-register')">create an account</a></p>
+
+      <div class="alert alert-danger" id="login-alert">
+        <span>⚠</span> <span id="login-alert-msg">Invalid email or password.</span>
+      </div>
+
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="login-email" placeholder="admin@agricom.com">
+        <div class="field-error" id="login-email-err">Please enter a valid email.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="login-pw" placeholder="Your password">
+          <span class="toggle-pw" onclick="togglePw('login-pw', this)">Show</span>
+        </div>
+        <div class="field-error" id="login-pw-err">Password is required.</div>
+      </div>
+
+      <div class="form-row">
+        <label class="remember-wrap">
+          <input type="checkbox" id="rememberMe"> Remember me
+        </label>
+        <a class="forgot-link" onclick="showScreen('screen-forgot')">Forgot password?</a>
+      </div>
+
+      <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+    </div>
+
+
+    <!-- ════════════ REGISTER ════════════ -->
+    <div class="screen" id="screen-register">
+      <a class="back-link" onclick="showScreen('screen-login')">← Back to login</a>
+      <h1 class="screen-title">Create account</h1>
+      <p class="screen-sub">Already have an account? <a onclick="showScreen('screen-login')">Sign in</a></p>
+
+      <div class="alert alert-danger" id="reg-alert">
+        <span>⚠</span> <span id="reg-alert-msg">Something went wrong.</span>
+      </div>
+
+      <div class="form-group">
+        <label>Full name</label>
+        <input type="text" id="reg-name" placeholder="e.g. Alice Uwimana">
+        <div class="field-error" id="reg-name-err">Name is required.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="reg-email" placeholder="admin@agricom.com">
+        <div class="field-error" id="reg-email-err">Please enter a valid email.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="reg-pw" placeholder="Create a strong password" oninput="checkStrength(this.value)">
+          <span class="toggle-pw" onclick="togglePw('reg-pw', this)">Show</span>
+        </div>
+        <div class="pw-strength" id="pw-strength-wrap">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+          <div class="strength-label" id="strength-label"></div>
+        </div>
+        <div class="field-error" id="reg-pw-err">Password must be at least 8 characters.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Confirm password</label>
+        <div class="input-wrap">
+          <input type="password" id="reg-pw2" placeholder="Repeat your password">
+          <span class="toggle-pw" onclick="togglePw('reg-pw2', this)">Show</span>
+        </div>
+        <div class="field-error" id="reg-pw2-err">Passwords do not match.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Admin registration key</label>
+        <input type="password" id="reg-key" placeholder="Enter the secret admin key">
+        <div class="field-error" id="reg-key-err">Invalid admin key.</div>
+      </div>
+
+      <button class="btn-primary" onclick="handleRegister()" style="margin-top:0.5rem">Create Account</button>
+    </div>
+
+
+    <!-- ════════════ FORGOT PASSWORD — step 1 ════════════ -->
+    <div class="screen" id="screen-forgot">
+      <a class="back-link" onclick="showScreen('screen-login')">← Back to login</a>
+      <div class="steps-dots">
+        <div class="step-dot active" id="fdot1"></div>
+        <div class="step-dot" id="fdot2"></div>
+        <div class="step-dot" id="fdot3"></div>
+      </div>
+      <h1 class="screen-title">Reset password</h1>
+      <p class="screen-sub">We'll send a verification code to your email.</p>
+
+      <div class="alert alert-danger" id="forgot-alert">
+        <span>⚠</span> <span id="forgot-alert-msg">Email not found.</span>
+      </div>
+
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="forgot-email" placeholder="Your registered email">
+        <div class="field-error" id="forgot-email-err">Please enter a valid email.</div>
+      </div>
+
+      <button class="btn-primary" onclick="handleForgotStep1()">Send Reset Code</button>
+    </div>
+
+
+    <!-- ════════════ FORGOT — step 2 (OTP) ════════════ -->
+    <div class="screen" id="screen-forgot2">
+      <div class="steps-dots">
+        <div class="step-dot" id="fdot1b"></div>
+        <div class="step-dot active" id="fdot2b"></div>
+        <div class="step-dot" id="fdot3b"></div>
+      </div>
+      <h1 class="screen-title">Enter code</h1>
+      <p class="screen-sub">Check your email for a 6-digit code.</p>
+
+      <div class="otp-hint">📧 A simulated code <strong id="otp-display"></strong> has been sent. (Demo only)</div>
+
+      <div class="form-group">
+        <label>Verification code</label>
+        <input type="text" id="otp-input" placeholder="6-digit code" maxlength="6">
+        <div class="field-error" id="otp-err">Incorrect code. Try again.</div>
+      </div>
+
+      <button class="btn-primary" onclick="handleForgotStep2()">Verify Code</button>
+      <button class="btn-ghost" onclick="showScreen('screen-forgot')">← Resend code</button>
+    </div>
+
+
+    <!-- ════════════ FORGOT — step 3 (new password) ════════════ -->
+    <div class="screen" id="screen-forgot3">
+      <div class="steps-dots">
+        <div class="step-dot" id="fdot1c"></div>
+        <div class="step-dot" id="fdot2c"></div>
+        <div class="step-dot active" id="fdot3c"></div>
+      </div>
+      <h1 class="screen-title">New password</h1>
+      <p class="screen-sub">Create a strong new password for your account.</p>
+
+      <div class="alert alert-danger" id="reset-alert">
+        <span>⚠</span> <span id="reset-alert-msg">Passwords do not match.</span>
+      </div>
+
+      <div class="form-group">
+        <label>New password</label>
+        <div class="input-wrap">
+          <input type="password" id="reset-pw" placeholder="New password" oninput="checkStrength(this.value)">
+          <span class="toggle-pw" onclick="togglePw('reset-pw', this)">Show</span>
+        </div>
+        <div class="pw-strength" id="pw-strength-wrap2">
+          <div class="strength-bar"><div class="strength-fill" id="strength-fill2"></div></div>
+          <div class="strength-label" id="strength-label2"></div>
+        </div>
+        <div class="field-error" id="reset-pw-err">Must be at least 8 characters.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Confirm new password</label>
+        <div class="input-wrap">
+          <input type="password" id="reset-pw2" placeholder="Repeat new password">
+          <span class="toggle-pw" onclick="togglePw('reset-pw2', this)">Show</span>
+        </div>
+        <div class="field-error" id="reset-pw2-err">Passwords do not match.</div>
+      </div>
+
+      <button class="btn-primary" onclick="handleResetPassword()">Save New Password</button>
+    </div>
+
+
+    <!-- ════════════ SUCCESS ════════════ -->
+    <div class="screen" id="screen-success">
+      <div style="text-align:center; padding: 1rem 0;">
+        <div style="font-size:3rem; margin-bottom:1rem;">✅</div>
+        <h1 class="screen-title" style="text-align:center">Password updated!</h1>
+        <p class="screen-sub" style="text-align:center; margin-bottom:2rem">Your password has been changed successfully.</p>
+        <button class="btn-primary" onclick="showScreen('screen-login')">Back to Login</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- ════════════════════════════════════
+     DASHBOARD (full page, hidden)
+════════════════════════════════════ -->
+<div class="app">
+
+<!-- SIDEBAR -->
+<!-- <aside class="sidebar">
+  <div class="sb-logo">Agricom <small>Admin Portal</small></div>
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <button class="nav-item active" onclick="nav('dashboard',this)">
+      <svg viewBox="0 0 15 15" fill="currentColor"><rect x="1" y="1" width="5.5" height="5.5" rx="1"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" onclick="nav('products',this)">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="11" height="11" rx="1"/><path d="M5 2V1M10 2V1M2 6h11"/></svg>
+      Products <span class="nav-badge" id="nb-products">347</span>
+    </button>
+    <button class="nav-item" onclick="nav('orders',this)">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 3h13M1 7h13M1 11h9"/></svg>
+      Orders <span class="nav-badge">14</span>
+    </button>
+    <button class="nav-item" onclick="nav('customers',this)">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7.5" cy="5" r="3"/><path d="M1.5 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+      Customers
+    </button>
+    <button class="nav-item" onclick="nav('deliveries',this)">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="5" width="10" height="7" rx="1"/><path d="M11 7l3 2v3h-3V7z"/><circle cx="4" cy="13" r="1.2"/><circle cx="11.5" cy="13" r="1.2"/></svg>
+      Deliveries
+    </button>
+    <button class="nav-item" onclick="nav('reports',this)">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><polyline points="1,12 4.5,6.5 8,9 11.5,3.5 14,5"/></svg>
+      Reports
+    </button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">System</div>
+    <button class="nav-item" onclick="nav('adminusers',this)">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="5.5" cy="5" r="2.5"/><path d="M1 13c0-2.5 2-4.5 4.5-4.5"/><circle cx="11" cy="9" r="2"/><path d="M9 14v-.5a2 2 0 014 0V14"/><path d="M11 7V5M10 6h2"/></svg>
+      <span data-i18n="adminUsers">Admin Users</span>
+    </button>
+    <button class="nav-item" onclick="nav('dashboard',this)">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7.5" cy="7.5" r="3"/><path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2"/></svg>
+      Settings
+    </button>
+    <button class="nav-item danger-nav" onclick="openModal('signout')" style="color:#E24B4A;margin-top:4px;">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-3-3-3M13 7H6"/></svg>
+      <span data-i18n="signOut">Sign out</span>
+    </button>
+  </div>
+  <div class="sb-footer">
+    <div class="user-pill">
+      <div class="user-avatar">AD</div>
+      <div><div class="user-name">Admin</div><div class="user-role">Super Admin</div></div>
+    </div>
+  </div>
+</aside> -->
+
+<!-- MAIN -->
+<div class="main">
+  <!-- <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard overview</div>
+    <div class="topbar-right">
+      <div style="font-size:11px;color:#97C459;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#97C459;margin-right:5px;"></span><span data-i18n="alerts">3 alerts</span></div>
+      <div style="font-size:11px;color:#639922;padding:5px 10px;border:1px solid #3B6D11;border-radius:6px;">Apr 2026</div>
+      <div class="dropdown">
+        <button class="lang-btn" onclick="toggleDropdown('langMenu',event)">
+          <span class="lang-flag" id="currentFlag">&#127479;&#127484;</span>
+          <span id="currentLangLabel">EN</span>
+          <svg viewBox="0 0 10 6" width="9" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg>
+        </button>
+        <div class="dropdown-menu" id="langMenu">
+          <button class="lang-item active-lang" onclick="setLang('en','EN')">&#127479;&#127484; English</button>
+          <button class="lang-item" onclick="setLang('fr','FR')">&#127467;&#127479; Français</button>
+          <button class="lang-item" onclick="setLang('rw','RW')">&#127479;&#127484; Kinyarwanda</button>
+          <button class="lang-item" onclick="setLang('sw','SW')">&#127481;&#127487; Swahili</button>
+        </div>
+      </div>
+      <button class="tb-pill primary" id="topbar-action" onclick="topbarAction()">+ New product</button>
+      <div class="dropdown">
+        <button class="tb-user" onclick="toggleDropdown('userMenu',event)">
+          <div class="tb-user-av">AD</div>
+          <span id="tb-username">Admin</span>
+          <svg viewBox="0 0 10 6" width="9" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg>
+        </button>
+        <div class="dropdown-menu" id="userMenu">
+          <div class="dropdown-menu-header">
+            <div class="dm-name" id="dm-fullname">Admin User</div>
+            <div class="dm-email">admin@agricom.rw</div>
+          </div>
+          <button class="dm-item" onclick="closeAllDropdowns();nav('adminusers',null)">
+            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7.5" cy="5" r="3"/><path d="M1.5 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+            <span data-i18n="manageAdmins">Manage admin users</span>
+          </button>
+          <button class="dm-item" onclick="closeAllDropdowns();openModal('editProfile')">
+            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10.5 2.5l2 2-8 8H2.5v-2l8-8z"/></svg>
+            <span data-i18n="editProfile">Edit profile</span>
+          </button>
+          <button class="dm-item" onclick="closeAllDropdowns();openModal('changePass')">
+            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="6" width="9" height="7" rx="1"/><path d="M5 6V4.5a2.5 2.5 0 015 0V6"/></svg>
+            <span data-i18n="changePassword">Change password</span>
+          </button>
+          <div class="dm-divider"></div>
+          <button class="dm-item danger" onclick="closeAllDropdowns();openModal('signout')">
+            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-3-3-3M13 7H6"/></svg>
+            <span data-i18n="signOut">Sign out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ════════════════ DASHBOARD ════════════════ -->
+  <!-- <div class="page active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 3V2M11 3V2M2 7h12"/></svg></div>
+        <div class="stat-label">Total revenue</div>
+        <div class="stat-value">RWF 4.2M</div>
+        <div class="stat-change up">▲ 12.4% this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><path d="M2 2h2l2 7h6l2-5H6"/><circle cx="7" cy="13" r="1"/><circle cx="12" cy="13" r="1"/></svg></div>
+        <div class="stat-label">Total orders</div>
+        <div class="stat-value">1,284</div>
+        <div class="stat-change up">▲ 8.1% this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
+        <div class="stat-label">Active customers</div>
+        <div class="stat-value">862</div>
+        <div class="stat-change dn">▼ 2.3% this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><rect x="1" y="5" width="10" height="7" rx="1"/><path d="M11 7l3 2v3h-3V7z"/><circle cx="4" cy="13" r="1.2"/><circle cx="11.5" cy="13" r="1.2"/></svg></div>
+        <div class="stat-label">Active deliveries</div>
+        <div class="stat-value">38</div>
+        <div class="stat-change up">▲ 5 dispatched today</div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Monthly sales by category</div>
+          <div style="display:flex;gap:6px;">
+            <span class="pill pill-green">Tools</span>
+            <span class="pill pill-amber">Fertilizers</span>
+            <span class="pill pill-teal">Seeds</span>
+          </div>
+        </div>
+        <div class="bars-wrap" id="chartBars"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent orders</div><button class="card-action" onclick="nav('orders',null)">View all →</button></div>
+        <div id="recentOrdersList"></div>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Inventory status</div><button class="card-action" onclick="nav('products',null)">Manage →</button></div>
+        <div id="inventoryList"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent activity</div></div>
+        <div class="act-list">
+          <div class="act-item"><div class="act-line"><div class="act-dot" style="background:var(--g400);"></div><div class="act-conn"></div></div><div class="act-body"><div class="act-text"><strong>New order</strong> by Jean Mutabazi — NPK Fertilizer</div><div class="act-time">2 min ago</div></div></div>
+          <div class="act-item"><div class="act-line"><div class="act-dot" style="background:var(--g600);"></div><div class="act-conn"></div></div><div class="act-body"><div class="act-text"><strong>User registered:</strong> Amina Mukamana joined</div><div class="act-time">15 min ago</div></div></div>
+          <div class="act-item"><div class="act-line"><div class="act-dot" style="background:var(--r400);"></div><div class="act-conn"></div></div><div class="act-body"><div class="act-text"><strong>Stock alert:</strong> Wheat seeds below 20%</div><div class="act-time">1 hr ago</div></div></div>
+          <div class="act-item"><div class="act-line"><div class="act-dot" style="background:var(--a200);"></div><div class="act-conn"></div></div><div class="act-body"><div class="act-text"><strong>Price updated:</strong> Drip irrigation kit</div><div class="act-time">3 hrs ago</div></div></div>
+          <div class="act-item"><div class="act-line"><div class="act-dot" style="background:var(--g400);"></div></div><div class="act-body"><div class="act-text"><strong>Delivery confirmed:</strong> 3 orders in Kigali</div><div class="act-time">5 hrs ago</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Field weather — Kigali</div><div class="pill pill-green">Live</div></div>
+        <div style="text-align:center;padding:4px 0 12px;">
+          <div style="font-size:36px;font-weight:700;color:var(--g800);">23°C</div>
+          <div style="font-size:11px;color:var(--g600);margin:2px 0 12px;">Partly cloudy · good for planting</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div style="background:var(--g50);border-radius:6px;padding:7px 9px;text-align:left;"><div style="font-size:10px;color:var(--g400);">Humidity</div><div style="font-size:13px;font-weight:500;color:var(--g800);">68%</div></div>
+            <div style="background:var(--g50);border-radius:6px;padding:7px 9px;text-align:left;"><div style="font-size:10px;color:var(--g400);">Wind</div><div style="font-size:13px;font-weight:500;color:var(--g800);">12 km/h</div></div>
+            <div style="background:var(--g50);border-radius:6px;padding:7px 9px;text-align:left;"><div style="font-size:10px;color:var(--g400);">UV index</div><div style="font-size:13px;font-weight:500;color:var(--g800);">5 — Mod</div></div>
+            <div style="background:var(--g50);border-radius:6px;padding:7px 9px;text-align:left;"><div style="font-size:10px;color:var(--g400);">Rain chance</div><div style="font-size:13px;font-weight:500;color:var(--g800);">30%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ════════════════ PRODUCTS ════════════════ -->
+  <!-- <div class="page" id="page-products">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M2 7h12M7 2v12"/></svg></div><div class="stat-label">Total products</div><div class="stat-value">347</div><div class="stat-change up">▲ 5 added today</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><path d="M2 14l3-4 3 2 3-5 3 3"/></svg></div><div class="stat-label">Best seller</div><div class="stat-value">NPK Fert.</div><div class="stat-change up">240 sold this month</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#A32D2D" stroke-width="1.4"><path d="M8 3v5l3 3"/><circle cx="8" cy="8" r="6"/></svg></div><div class="stat-label">Low stock items</div><div class="stat-value">7</div><div class="stat-change dn">▼ needs restocking</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><rect x="3" y="2" width="10" height="12" rx="1"/><path d="M6 6h4M6 9h4M6 12h2"/></svg></div><div class="stat-label">Categories</div><div class="stat-value">6</div><div class="stat-change up">Fertilizers, Seeds +4</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All products</div>
+        <button class="btn" onclick="openModal('product')">+ Add product</button>
+      </div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="Search products..." oninput="filterTable('productsBody',this.value,[0,1])">
+        <select class="filter-sel" onchange="filterByPill('productsBody',this.value,2)">
+          <option value="">All categories</option>
+          <option>Fertilizers</option><option>Seeds</option><option>Tools</option><option>Irrigation</option><option>Pesticides</option>
+        </select>
+        <select class="filter-sel" onchange="filterByPill('productsBody',this.value,5)">
+          <option value="">All status</option>
+          <option>In stock</option><option>Low stock</option><option>Out of stock</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Sold</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="productsBody"></tbody></table>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ════════════════ ORDERS ════════════════ -->
+  <!-- <div class="page" id="page-orders">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><path d="M2 2h2l2 7h6l2-5H6"/><circle cx="7" cy="13" r="1"/><circle cx="12" cy="13" r="1"/></svg></div><div class="stat-label">Total orders</div><div class="stat-value">1,284</div><div class="stat-change up">▲ 8.1%</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><polyline points="3,8 6,11 13,4"/></svg></div><div class="stat-label">Delivered</div><div class="stat-value">1,102</div><div class="stat-change up">▲ 85.8%</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#633806" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg></div><div class="stat-label">Pending</div><div class="stat-value">124</div><div class="stat-change dn">▼ needs action</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#A32D2D" stroke-width="1.4"><path d="M4 4l8 8M12 4l-8 8"/></svg></div><div class="stat-label">Cancelled</div><div class="stat-value">58</div><div class="stat-change dn">▼ 4.5%</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">All orders</div><button class="btn" onclick="openModal('order')">+ New order</button></div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="Search orders / customer..." oninput="filterTable('ordersBody',this.value,[0,1])">
+        <select class="filter-sel" onchange="filterByPill('ordersBody',this.value,4)">
+          <option value="">All status</option>
+          <option>Delivered</option><option>Pending</option><option>Processing</option><option>Cancelled</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Order ID</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody id="ordersBody"></tbody></table>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ════════════════ CUSTOMERS ════════════════ -->
+  <!-- <div class="page" id="page-customers">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div><div class="stat-label">Total customers</div><div class="stat-value">862</div><div class="stat-change up">▲ 12 new this week</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><path d="M8 2C5 2 3 4.5 3 7c0 4 5 9 5 9s5-5 5-9c0-2.5-2-5-5-5z"/><circle cx="8" cy="7" r="1.5"/></svg></div><div class="stat-label">Districts covered</div><div class="stat-value">14</div><div class="stat-change up">across Rwanda</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><path d="M3 5h10M3 8h7M3 11h5"/></svg></div><div class="stat-label">Avg. orders/customer</div><div class="stat-value">3.7</div><div class="stat-change up">▲ 0.4 this month</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#A32D2D" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M5 8h6"/></svg></div><div class="stat-label">Inactive (30d)</div><div class="stat-value">48</div><div class="stat-change dn">▼ re-engage needed</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">All customers</div><button class="btn" onclick="openModal('customer')">+ Add customer</button></div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="Search by name or location..." oninput="filterTable('customersBody',this.value,[0,1])">
+        <select class="filter-sel" onchange="filterByPill('customersBody',this.value,2)">
+          <option value="">All roles</option>
+          <option>Farmer</option><option>Vendor</option><option>Admin</option>
+        </select>
+        <select class="filter-sel" onchange="filterByPill('customersBody',this.value,5)">
+          <option value="">All status</option>
+          <option>Active</option><option>Inactive</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Location</th><th>Role</th><th>Total orders</th><th>Total spend</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead>
+        <tbody id="customersBody"></tbody></table>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ════════════════ DELIVERIES ════════════════ -->
+  <!-- <div class="page" id="page-deliveries">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><rect x="1" y="5" width="10" height="7" rx="1"/><path d="M11 7l3 2v3h-3V7z"/><circle cx="4" cy="13" r="1.2"/><circle cx="11.5" cy="13" r="1.2"/></svg></div><div class="stat-label">Total deliveries</div><div class="stat-value">1,102</div><div class="stat-change up">▲ 5 today</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><path d="M3 8h10M9 4l4 4-4 4"/></svg></div><div class="stat-label">In transit</div><div class="stat-value">38</div><div class="stat-change up">on the road</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><polyline points="3,8 6,11 13,4"/></svg></div><div class="stat-label">Delivered today</div><div class="stat-value">12</div><div class="stat-change up">▲ 4 more than avg</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#A32D2D" stroke-width="1.4"><path d="M4 4l8 8M12 4l-8 8"/></svg></div><div class="stat-label">Failed deliveries</div><div class="stat-value">6</div><div class="stat-change dn">▼ needs follow-up</div></div>
+    </div>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-header"><div class="card-title">Active deliveries — tracking</div><button class="card-action">Refresh</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Delivery ID</th><th>Customer</th><th>Product</th><th>Location</th><th>Driver</th><th>Stage</th><th>ETA</th><th>Status</th></tr></thead>
+        <tbody id="deliveriesBody"></tbody></table>
+      </div>
+    </div>
+    <div class="row2b">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Delivery by district</div></div>
+        <div id="districtBars"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Delivery status breakdown</div></div>
+        <div class="donut-wrap">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#EAF3DE" stroke-width="18"/>
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#639922" stroke-width="18" stroke-dasharray="166 98" stroke-dashoffset="25" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#EF9F27" stroke-width="18" stroke-dasharray="60 204" stroke-dashoffset="-141" transform="rotate(-90 55 55)"/>
+            <circle cx="55" cy="55" r="42" fill="none" stroke="#E24B4A" stroke-width="18" stroke-dasharray="18 246" stroke-dashoffset="-201" transform="rotate(-90 55 55)"/>
+            <text x="55" y="52" text-anchor="middle" font-size="13" font-weight="700" fill="#173404">1,102</text>
+            <text x="55" y="65" text-anchor="middle" font-size="9" fill="#639922">total</text>
+          </svg>
+          <div class="donut-legend">
+            <div class="leg-item"><div class="leg-dot" style="background:#639922;"></div>Delivered — 1,102 (85.8%)</div>
+            <div class="leg-item"><div class="leg-dot" style="background:#EF9F27;"></div>In transit — 38 (2.9%)</div>
+            <div class="leg-item"><div class="leg-dot" style="background:#E24B4A;"></div>Failed — 6 (0.5%)</div>
+            <div class="leg-item"><div class="leg-dot" style="background:#EAF3DE;"></div>Pending — 142 (11%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ════════════════ REPORTS ════════════════ -->
+  <!-- <div class="page" id="page-reports">
+    <div class="row2b" style="margin-bottom:1.25rem;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Revenue report — 2025/2026</div><button class="btn btn-outline" onclick="alert('Exporting CSV...')">Export CSV</button></div>
+        <div class="report-kpi-grid">
+          <div class="rk"><div class="rk-label">Total revenue</div><div class="rk-val">RWF 4.2M</div><div class="rk-sub">Apr 2026</div></div>
+          <div class="rk"><div class="rk-label">Avg order value</div><div class="rk-val">RWF 51K</div><div class="rk-sub">vs 44K last month</div></div>
+          <div class="rk"><div class="rk-label">YoY growth</div><div class="rk-val">+28%</div><div class="rk-sub">vs Apr 2025</div></div>
+        </div>
+        <div class="bars-wrap" id="reportBars" style="height:140px;margin-top:16px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Top products by revenue</div></div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Product</th><th>Category</th><th>Revenue</th><th>Units</th></tr></thead>
+          <tbody id="topProductsBody"></tbody></table>
+        </div>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Orders by month</div></div>
+        <div id="ordersBarChart" style="display:flex;align-items:flex-end;gap:5px;height:100px;margin-top:8px;"></div>
+        <div style="font-size:10px;color:var(--g400);margin-top:8px;">Peak: September · Lowest: January</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Sales by category</div></div>
+        <div id="catBreakdown"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Customer regions</div></div>
+        <div id="regionBreakdown"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.25rem;">
+      <div class="card-header"><div class="card-title">Monthly summary table</div><button class="btn btn-outline" onclick="alert('Exporting PDF...')">Export PDF</button></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Month</th><th>Orders</th><th>Revenue (RWF)</th><th>New customers</th><th>Deliveries</th><th>Returns</th></tr></thead>
+        <tbody id="summaryBody"></tbody></table>
+      </div>
+    </div>
+  </div> -->
+
+  <!-- ════════════════ ADMIN USERS ════════════════ -->
+  <div class="page" id="page-adminusers">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div><div class="stat-label">Total admins</div><div class="stat-value">5</div><div class="stat-change up">All active</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><path d="M8 2l2 4 4.5.7-3.2 3.1.7 4.4L8 12l-4 2.2.7-4.4L1.5 6.7 6 6z"/></svg></div><div class="stat-label">Super admins</div><div class="stat-value">1</div><div class="stat-change up">You</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#27500A" stroke-width="1.4"><rect x="3" y="6" width="10" height="8" rx="1"/><path d="M5 6V5a3 3 0 016 0v1"/></svg></div><div class="stat-label">Roles</div><div class="stat-value">3</div><div class="stat-change up">Super / Manager / Viewer</div></div>
+      <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 16 16" fill="none" stroke="#A32D2D" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg></div><div class="stat-label">Last login</div><div class="stat-value">Today</div><div class="stat-change up">04:12 PM</div></div>
+    </div>
+    <div class="admin-users-grid" id="adminUsersGrid"></div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All admin users</div>
+        <button class="btn" onclick="openModal('addAdmin')">+ Add admin</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last login</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="adminTableBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SIGN OUT CONFIRM -->
+<div class="modal-bg" id="modal-signout">
+  <div class="signout-modal">
+    <div class="signout-icon"><svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-3-3-3M13 7H6"/></svg></div>
+    <div class="signout-title">Sign out?</div>
+    <div class="signout-sub">You will be returned to the login screen. Any unsaved changes will be lost.</div>
+    <div class="signout-actions">
+      <button class="btn" style="background:var(--r600);border-color:var(--r600);" onclick="doSignOut()">Sign out</button>
+      <button class="btn btn-outline" onclick="closeModal('signout')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ADMIN MODAL -->
+<div class="modal-bg" id="modal-addAdmin">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add admin user</div><button class="modal-close" onclick="closeModal('addAdmin')">×</button></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">First name</label><input class="form-input" id="newAdminFirst" placeholder="Jean"></div>
+      <div class="form-group"><label class="form-label">Last name</label><input class="form-input" id="newAdminLast" placeholder="Mutabazi"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="newAdminEmail" type="email" placeholder="jean@agricom.rw"></div>
+    <div class="form-group"><label class="form-label">Role</label>
+      <select class="form-select" id="newAdminRole"><option value="Super Admin">Super Admin</option><option value="Manager" selected>Manager</option><option value="Viewer">Viewer</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Temporary password</label><input class="form-input" type="password" id="newAdminPass" placeholder="Min 8 characters"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="addAdminUser()">Create admin</button>
+      <button class="btn btn-outline" onclick="closeModal('addAdmin')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-bg" id="modal-editProfile">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Edit profile</div><button class="modal-close" onclick="closeModal('editProfile')">×</button></div>
+    <div style="display:flex;justify-content:center;margin-bottom:1.2rem;"><div style="width:60px;height:60px;border-radius:50%;background:var(--g600);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:var(--g100);">AD</div></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">First name</label><input class="form-input" value="Admin"></div>
+      <div class="form-group"><label class="form-label">Last name</label><input class="form-input" value="User"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" value="admin@agricom.rw"></div>
+    <div class="form-group"><label class="form-label">Phone</label><input class="form-input" value="+250 788 000 000"></div>
+    <div class="form-actions"><button class="btn" onclick="closeModal('editProfile');showToast('Profile updated successfully')">Save changes</button><button class="btn btn-outline" onclick="closeModal('editProfile')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-bg" id="modal-changePass">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Change password</div><button class="modal-close" onclick="closeModal('changePass')">×</button></div>
+    <div class="form-group"><label class="form-label">Current password</label><input class="form-input" type="password" placeholder="••••••••"></div>
+    <div class="form-group"><label class="form-label">New password</label><input class="form-input" type="password" placeholder="Min 8 characters"></div>
+    <div class="form-group"><label class="form-label">Confirm new password</label><input class="form-input" type="password" placeholder="Repeat new password"></div>
+    <div class="form-actions"><button class="btn" onclick="closeModal('changePass');showToast('Password changed successfully')">Update password</button><button class="btn btn-outline" onclick="closeModal('changePass')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-bg" id="modal-product">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add new product</div><button class="modal-close" onclick="closeModal('product')">×</button></div>
+    <div class="form-group"><label class="form-label">Product name</label><input class="form-input" placeholder="e.g. NPK Fertilizer 50kg"></div>
+    <div class="form-group"><label class="form-label">Category</label><select class="form-select"><option>Fertilizers</option><option>Seeds</option><option>Tools</option><option>Irrigation</option><option>Pesticides</option></select></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Price (RWF)</label><input class="form-input" type="number" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Stock qty</label><input class="form-input" type="number" placeholder="0"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" placeholder="Product description..."></textarea></div>
+    <div class="form-group"><label class="form-label">Supplier</label><input class="form-input" placeholder="Supplier name"></div>
+    <div class="form-actions"><button class="btn" onclick="closeModal('product');showToast('Product saved')">Save product</button><button class="btn btn-outline" onclick="closeModal('product')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="modal-bg" id="modal-order">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Create new order</div><button class="modal-close" onclick="closeModal('order')">×</button></div>
+    <div class="form-group"><label class="form-label">Customer</label><select class="form-select"><option>Jean Mutabazi</option><option>Amina Mukamana</option><option>Pierre Habimana</option><option>Claire Uwimana</option></select></div>
+    <div class="form-group"><label class="form-label">Product</label><select class="form-select"><option>NPK Fertilizer 50kg</option><option>Maize seeds 5kg</option><option>Garden hoe</option><option>Drip irrigation kit</option></select></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Quantity</label><input class="form-input" type="number" placeholder="1"></div>
+      <div class="form-group"><label class="form-label">Delivery date</label><input class="form-input" type="date"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Delivery address</label><input class="form-input" placeholder="KG 45 Ave, Kigali"></div>
+    <div class="form-actions"><button class="btn" onclick="closeModal('order');showToast('Order placed')">Place order</button><button class="btn btn-outline" onclick="closeModal('order')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- CUSTOMER MODAL -->
+<div class="modal-bg" id="modal-customer">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add customer</div><button class="modal-close" onclick="closeModal('customer')">×</button></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">First name</label><input class="form-input" placeholder="Jean"></div>
+      <div class="form-group"><label class="form-label">Last name</label><input class="form-input" placeholder="Mutabazi"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Phone</label><input class="form-input" placeholder="+250 7xx xxx xxx"></div>
+    <div class="form-group"><label class="form-label">Location</label><input class="form-input" placeholder="Kigali"></div>
+    <div class="form-group"><label class="form-label">Role</label><select class="form-select"><option>Farmer</option><option>Vendor</option><option>Admin</option></select></div>
+    <div class="form-actions"><button class="btn" onclick="closeModal('customer');showToast('Customer added')">Save customer</button><button class="btn btn-outline" onclick="closeModal('customer')">Cancel</button></div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_KEY = 'AGRICOM2025';
+  let otpCode = '';
+  let resetEmail = '';
+  let users = JSON.parse(localStorage.getItem('agricom_admins') || '{}');
+
+  function saveUsers() {
+    localStorage.setItem('agricom_admins', JSON.stringify(users));
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
+    clearAlerts();
+  }
+
+  function clearAlerts() {
+    document.querySelectorAll('.alert').forEach(a => a.classList.remove('show'));
+    document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+    document.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+  }
+
+  function showAlert(id, msg) {
+    const el = document.getElementById(id);
+    const msgEl = document.getElementById(id + '-msg');
+    if (msgEl && msg) msgEl.textContent = msg;
+    if (el) el.classList.add('show');
+  }
+
+  function fieldError(id, errId) {
+    const field = document.getElementById(id);
+    const err   = document.getElementById(errId);
+    if (field) field.classList.add('error');
+    if (err)   err.classList.add('show');
+  }
+
+  function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      input.type = 'password';
+      btn.textContent = 'Show';
+    }
+  }
+
+  function isValidEmail(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  }
+
+  function checkStrength(pw) {
+    const wrap  = document.getElementById('pw-strength-wrap') || document.getElementById('pw-strength-wrap2');
+    const fill  = document.getElementById('strength-fill')    || document.getElementById('strength-fill2');
+    const label = document.getElementById('strength-label')   || document.getElementById('strength-label2');
+
+    if (!fill || !label) return;
+    const w1 = document.getElementById('pw-strength-wrap');
+    const w2 = document.getElementById('pw-strength-wrap2');
+
+    let score = 0;
+    if (pw.length >= 8)              score++;
+    if (/[A-Z]/.test(pw))            score++;
+    if (/[0-9]/.test(pw))            score++;
+    if (/[^A-Za-z0-9]/.test(pw))     score++;
+
+    const colors = ['#e24b4a','#ef9f27','#639922','#27500A'];
+    const labels = ['Weak','Fair','Good','Strong'];
+    const widths = ['25%','50%','75%','100%'];
+
+    const idx = Math.max(0, score - 1);
+    const activeScore = pw.length > 0 ? score : 0;
+
+    [w1, w2].forEach(w => { if (w) w.classList.toggle('show', pw.length > 0); });
+
+    const f1 = document.getElementById('strength-fill');
+    const f2 = document.getElementById('strength-fill2');
+    const l1 = document.getElementById('strength-label');
+    const l2 = document.getElementById('strength-label2');
+
+    [f1, f2].forEach(f => { if (f && pw.length > 0) { f.style.width = widths[idx]; f.style.background = colors[idx]; } else if (f) { f.style.width = '0'; } });
+    [l1, l2].forEach(l => { if (l && pw.length > 0) l.textContent = 'Strength: ' + labels[idx]; else if (l) l.textContent = ''; });
+  }
+
+  function handleLogin() {
+    clearAlerts();
+    const email = document.getElementById('login-email').value.trim();
+    const pw    = document.getElementById('login-pw').value;
+    let valid = true;
+
+    if (!isValidEmail(email)) { fieldError('login-email','login-email-err'); valid = false; }
+    if (!pw) { fieldError('login-pw','login-pw-err'); valid = false; }
+    if (!valid) return;
+
+    const user = users[email.toLowerCase()];
+    if (!user || user.password !== pw) {
+      showAlert('login-alert', 'Incorrect email or password.');
+      return;
+    }
+
+    launchDashboard(user.name);
+  }
+
+  function handleRegister() {
+    clearAlerts();
+    const name  = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pw    = document.getElementById('reg-pw').value;
+    const pw2   = document.getElementById('reg-pw2').value;
+    const key   = document.getElementById('reg-key').value.trim();
+    let valid = true;
+
+    if (!name)                { fieldError('reg-name','reg-name-err'); valid = false; }
+    if (!isValidEmail(email)) { fieldError('reg-email','reg-email-err'); valid = false; }
+    if (pw.length < 8)        { fieldError('reg-pw','reg-pw-err'); valid = false; }
+    if (pw !== pw2)           { fieldError('reg-pw2','reg-pw2-err'); valid = false; }
+    if (key !== ADMIN_KEY)    { fieldError('reg-key','reg-key-err'); valid = false; }
+    if (!valid) return;
+
+    if (users[email.toLowerCase()]) {
+      showAlert('reg-alert', 'This email is already registered.');
+      return;
+    }
+
+    users[email.toLowerCase()] = { name, email, password: pw };
+    saveUsers();
+    launchDashboard(name);
+  }
+
+  function handleForgotStep1() {
+    clearAlerts();
+    const email = document.getElementById('forgot-email').value.trim();
+    if (!isValidEmail(email)) { fieldError('forgot-email','forgot-email-err'); return; }
+
+    if (!users[email.toLowerCase()]) {
+      showAlert('forgot-alert', 'No account found with this email.');
+      return;
+    }
+
+    resetEmail = email.toLowerCase();
+    otpCode = String(Math.floor(100000 + Math.random() * 900000));
+    document.getElementById('otp-display').textContent = otpCode;
+    showScreen('screen-forgot2');
+  }
+
+  function handleForgotStep2() {
+    clearAlerts();
+    const entered = document.getElementById('otp-input').value.trim();
+    if (entered !== otpCode) {
+      fieldError('otp-input','otp-err');
+      return;
+    }
+    showScreen('screen-forgot3');
+  }
+
+  function handleResetPassword() {
+    clearAlerts();
+    const pw  = document.getElementById('reset-pw').value;
+    const pw2 = document.getElementById('reset-pw2').value;
+    if (pw.length < 8) { fieldError('reset-pw','reset-pw-err'); return; }
+    if (pw !== pw2)    { fieldError('reset-pw2','reset-pw2-err'); return; }
+
+    users[resetEmail].password = pw;
+    saveUsers();
+    showScreen('screen-success');
+  }
+
+  function launchDashboard(name) {
+    document.getElementById('authWrapper').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    const firstName = name.split(' ')[0];
+    document.getElementById('admin-name-badge').textContent = name;
+    document.getElementById('dash-greeting-name').textContent = firstName;
+  }
+
+  function handleLogout() {
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('authWrapper').style.display = 'flex';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pw').value = '';
+    showScreen('screen-login');
+  }
+
+  // Allow Enter key on login
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const active = document.querySelector('.screen.active');
+    if (!active) return;
+    const id = active.id;
+    if (id === 'screen-login')   handleLogin();
+    if (id === 'screen-register') handleRegister();
+    if (id === 'screen-forgot')  handleForgotStep1();
+    if (id === 'screen-forgot2') handleForgotStep2();
+    if (id === 'screen-forgot3') handleResetPassword();
+  });
+
+  /* ═══════════════════ DATA ═══════════════════ */
+const products = [
+  {name:'NPK Fertilizer 50kg',cat:'Fertilizers',price:22500,stock:240,sold:240,status:'In stock'},
+  {name:'Urea Fertilizer 25kg',cat:'Fertilizers',price:12000,stock:22,sold:180,status:'Low stock'},
+  {name:'Maize seeds 5kg',cat:'Seeds',price:5500,stock:180,sold:320,status:'In stock'},
+  {name:'Wheat seeds 10kg',cat:'Seeds',price:8000,stock:18,sold:95,status:'Low stock'},
+  {name:'Sorghum seeds 5kg',cat:'Seeds',price:4500,stock:130,sold:60,status:'In stock'},
+  {name:'Garden hoe',cat:'Tools',price:9000,stock:95,sold:140,status:'In stock'},
+  {name:'Rake',cat:'Tools',price:6500,stock:70,sold:85,status:'In stock'},
+  {name:'Wheelbarrow',cat:'Tools',price:28000,stock:0,sold:32,status:'Out of stock'},
+  {name:'Drip irrigation kit',cat:'Irrigation',price:89000,stock:15,sold:28,status:'Low stock'},
+  {name:'Irrigation pipes 50m',cat:'Irrigation',price:34000,stock:65,sold:45,status:'In stock'},
+  {name:'Pesticide spray 1L',cat:'Pesticides',price:7500,stock:200,sold:175,status:'In stock'},
+];
+
+const orders = [
+  {id:'#ORD-001',customer:'Jean Mutabazi',product:'NPK Fertilizer ×2',amount:45000,status:'Delivered',date:'Apr 18, 2026'},
+  {id:'#ORD-002',customer:'Amina Mukamana',product:'Hoe + Rake set',amount:15500,status:'Pending',date:'Apr 19, 2026'},
+  {id:'#ORD-003',customer:'Pierre Habimana',product:'Maize seeds 5kg',amount:5500,status:'Processing',date:'Apr 20, 2026'},
+  {id:'#ORD-004',customer:'Claire Uwimana',product:'Drip irrigation kit',amount:89000,status:'Delivered',date:'Apr 17, 2026'},
+  {id:'#ORD-005',customer:'Robert Nkurunziza',product:'Tractor attachment',amount:210000,status:'Pending',date:'Apr 21, 2026'},
+  {id:'#ORD-006',customer:'Gisele Kalisa',product:'Urea Fertilizer 25kg',amount:12000,status:'Delivered',date:'Apr 16, 2026'},
+  {id:'#ORD-007',customer:'Eric Mugisha',product:'Pesticide spray ×3',amount:22500,status:'Processing',date:'Apr 22, 2026'},
+  {id:'#ORD-008',customer:'Jean Mutabazi',product:'Irrigation pipes 50m',amount:34000,status:'Delivered',date:'Apr 15, 2026'},
+  {id:'#ORD-009',customer:'Marie Ingabire',product:'Maize seeds 5kg ×2',amount:11000,status:'Cancelled',date:'Apr 14, 2026'},
+  {id:'#ORD-010',customer:'David Habimana',product:'Garden hoe',amount:9000,status:'Pending',date:'Apr 23, 2026'},
+];
+
+const customers = [
+  {initials:'JM',name:'Jean Mutabazi',location:'Kigali',role:'Farmer',orders:12,spend:456000,status:'Active',joined:'Jan 2025'},
+  {initials:'AM',name:'Amina Mukamana',location:'Musanze',role:'Farmer',orders:7,spend:89500,status:'Active',joined:'Feb 2025'},
+  {initials:'PH',name:'Pierre Habimana',location:'Huye',role:'Vendor',orders:34,spend:1200000,status:'Active',joined:'Mar 2025'},
+  {initials:'CU',name:'Claire Uwimana',location:'Rubavu',role:'Farmer',orders:5,spend:145000,status:'Inactive',joined:'Apr 2025'},
+  {initials:'RN',name:'Robert Nkurunziza',location:'Kigali',role:'Admin',orders:0,spend:0,status:'Active',joined:'Jan 2025'},
+  {initials:'GK',name:'Gisele Kalisa',location:'Nyamata',role:'Farmer',orders:18,spend:320000,status:'Active',joined:'Jun 2025'},
+  {initials:'EM',name:'Eric Mugisha',location:'Kigali',role:'Vendor',orders:42,spend:2100000,status:'Active',joined:'May 2025'},
+  {initials:'MI',name:'Marie Ingabire',location:'Rwamagana',role:'Farmer',orders:3,spend:28000,status:'Inactive',joined:'Aug 2025'},
+  {initials:'DH',name:'David Habimana',location:'Musanze',role:'Farmer',orders:9,spend:115000,status:'Active',joined:'Sep 2025'},
+];
+
+const deliveries = [
+  {id:'#DEL-038',customer:'Jean Mutabazi',product:'NPK Fertilizer',location:'KG 45 Ave, Kigali',driver:'Driver A',stage:3,eta:'Today 3PM',status:'In transit'},
+  {id:'#DEL-037',customer:'Amina Mukamana',product:'Hoe + Rake',location:'Musanze Main St',driver:'Driver B',stage:2,eta:'Apr 24',status:'In transit'},
+  {id:'#DEL-036',customer:'Pierre Habimana',product:'Maize seeds',location:'Huye Market',driver:'Driver C',stage:4,eta:'Delivered',status:'Delivered'},
+  {id:'#DEL-035',customer:'Claire Uwimana',product:'Irrigation kit',location:'Rubavu Shore Rd',driver:'Driver A',stage:1,eta:'Apr 25',status:'Pending'},
+  {id:'#DEL-034',customer:'Eric Mugisha',product:'Pesticides ×3',location:'Kigali CBD',driver:'Driver D',stage:3,eta:'Today 5PM',status:'In transit'},
+  {id:'#DEL-033',customer:'Gisele Kalisa',product:'Urea Fert.',location:'Nyamata Central',driver:'Driver B',stage:4,eta:'Delivered',status:'Delivered'},
+];
+
+const summary = [
+  {month:'Jan 2026',orders:82,rev:'280,000',newC:12,del:75,ret:3},
+  {month:'Feb 2026',orders:97,rev:'340,000',newC:15,del:89,ret:2},
+  {month:'Mar 2026',orders:115,rev:'420,000',newC:18,del:108,ret:4},
+  {month:'Apr 2026',orders:134,rev:'510,000',newC:22,del:125,ret:1},
+];
+
+/* ═══════════════════ NAV ═══════════════════ */
+const pageTitles = {dashboard:'Dashboard overview',products:'Products',orders:'Orders',customers:'Customers',deliveries:'Deliveries',reports:'Reports'};
+const pageActions = {dashboard:'+ New product',products:'+ Add product',orders:'+ New order',customers:'+ Add customer',deliveries:'Update deliveries',reports:'Export report'};
+
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(i => {
+      if (i.textContent.trim().toLowerCase().startsWith(page)) i.classList.add('active');
+    });
+  }
+  document.getElementById('topbar-title').textContent = pageTitles[page];
+  document.getElementById('topbar-action').textContent = pageActions[page];
+}
+function topbarAction() {
+  const active = document.querySelector('.page.active').id.replace('page-','');
+  if (active === 'products') openModal('product');
+  else if (active === 'orders') openModal('order');
+  else if (active === 'customers') openModal('customer');
+  else if (active === 'reports') alert('Generating PDF report...');
+  else openModal('product');
+}
+
+/* ═══════════════════ MODALS ═══════════════════ */
+function openModal(id) { document.getElementById('modal-' + id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); }));
+
+/* ═══════════════════ FILTER ═══════════════════ */
+function filterTable(tbodyId, q, cols) {
+  const rows = document.getElementById(tbodyId).querySelectorAll('tr');
+  rows.forEach(row => {
+    const tds = row.querySelectorAll('td');
+    const match = cols.some(i => tds[i] && tds[i].textContent.toLowerCase().includes(q.toLowerCase()));
+    row.style.display = match ? '' : 'none';
+  });
+}
+function filterByPill(tbodyId, val, col) {
+  const rows = document.getElementById(tbodyId).querySelectorAll('tr');
+  rows.forEach(row => {
+    if (!val) { row.style.display = ''; return; }
+    const td = row.querySelectorAll('td')[col];
+    row.style.display = (td && td.textContent.toLowerCase().includes(val.toLowerCase())) ? '' : 'none';
+  });
+}
+
+/* ═══════════════════ STATUS PILLS ═══════════════════ */
+function statusPill(s) {
+  const map = {Delivered:'pill-green',Pending:'pill-amber',Processing:'pill-blue',Cancelled:'pill-red','In stock':'pill-green','Low stock':'pill-amber','Out of stock':'pill-red','In transit':'pill-blue',Active:'pill-green',Inactive:'pill-amber',Farmer:'pill-green',Vendor:'pill-teal',Admin:'pill-amber'};
+  return `<span class="pill ${map[s]||'pill-blue'}">${s}</span>`;
+}
+
+/* ═══════════════════ RENDER PRODUCTS ═══════════════════ */
+function renderProducts() {
+  document.getElementById('productsBody').innerHTML = products.map(p => `
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td>${p.cat}</td>
+      <td>RWF ${p.price.toLocaleString()}</td>
+      <td>${p.stock}</td>
+      <td>${p.sold}</td>
+      <td>${statusPill(p.status)}</td>
+      <td><button class="card-action" onclick="alert('Edit: ${p.name}')">Edit</button></td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════ RENDER ORDERS ═══════════════════ */
+function renderOrders() {
+  document.getElementById('ordersBody').innerHTML = orders.map(o => `
+    <tr>
+      <td><strong>${o.id}</strong></td>
+      <td>${o.customer}</td>
+      <td>${o.product}</td>
+      <td>RWF ${o.amount.toLocaleString()}</td>
+      <td>${statusPill(o.status)}</td>
+      <td style="color:var(--g600);">${o.date}</td>
+      <td><button class="card-action" onclick="alert('View order ${o.id}')">View</button></td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════ RENDER CUSTOMERS ═══════════════════ */
+function renderCustomers() {
+  const roleColors = {Farmer:['#EAF3DE','#27500A'],Vendor:['#E1F5EE','#085041'],Admin:['#FAEEDA','#633806']};
+  document.getElementById('customersBody').innerHTML = customers.map(c => {
+    const [bg,fg] = roleColors[c.role]||['#eee','#333'];
+    return `<tr>
+      <td><span class="avatar" style="background:${bg};color:${fg};">${c.initials}</span> ${c.name}</td>
+      <td style="color:var(--g600);">${c.location}</td>
+      <td>${statusPill(c.role)}</td>
+      <td>${c.orders}</td>
+      <td>RWF ${c.spend.toLocaleString()}</td>
+      <td>${statusPill(c.status)}</td>
+      <td style="color:var(--g600);">${c.joined}</td>
+      <td><button class="card-action" onclick="alert('View ${c.name}')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════ RENDER DELIVERIES ═══════════════════ */
+const stages = ['Placed','Packed','Dispatched','In transit','Delivered'];
+function renderDeliveries() {
+  document.getElementById('deliveriesBody').innerHTML = deliveries.map(d => {
+    const stageHtml = `<div class="track-steps">${stages.map((s,i)=>{
+      const cls = i < d.stage ? 'done' : i === d.stage ? 'active' : '';
+      return `<div class="track-step ${cls}"><div class="ts-dot">${i<d.stage?'✓':i+1}</div><div class="ts-label">${s}</div></div>`;
+    }).join('')}</div>`;
+    return `<tr>
+      <td><strong>${d.id}</strong></td>
+      <td>${d.customer}</td>
+      <td>${d.product}</td>
+      <td style="color:var(--g600);">${d.location}</td>
+      <td>${d.driver}</td>
+      <td style="min-width:200px;">${stageHtml}</td>
+      <td style="font-size:11px;">${d.eta}</td>
+      <td>${statusPill(d.status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════ DISTRICT BARS ═══════════════════ */
+function renderDistrictBars() {
+  const districts = [{n:'Kigali',v:420},{n:'Musanze',v:180},{n:'Huye',v:145},{n:'Rubavu',v:130},{n:'Nyamata',v:95},{n:'Rwamagana',v:80}];
+  const max = 420;
+  document.getElementById('districtBars').innerHTML = districts.map(d => `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <div style="width:70px;font-size:11px;color:var(--g600);text-align:right;">${d.n}</div>
+      <div style="flex:1;height:14px;background:var(--g50);border-radius:3px;overflow:hidden;">
+        <div style="width:${Math.round(d.v/max*100)}%;height:100%;background:var(--g400);border-radius:3px;"></div>
+      </div>
+      <div style="font-size:11px;font-weight:500;color:var(--g800);width:30px;">${d.v}</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════ CHARTS ═══════════════════ */
+const months12 = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+const tools12  = [55,62,48,70,80,65,72,85,60,90,78,95];
+const fert12   = [40,35,55,60,45,70,50,65,75,55,80,70];
+const seeds12  = [30,40,35,50,60,45,55,70,40,65,50,75];
+const maxV = Math.max(...tools12,...fert12,...seeds12);
+
+function buildBars(containerId, series, colors, labels) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = '';
+  const vals = series[0];
+  labels.forEach((lbl,i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    series.forEach((s,si) => {
+      const b = document.createElement('div');
+      b.className = 'bar';
+      b.style.cssText = `height:${Math.round((s[i]/maxV)*100)}px;background:${colors[si]};`;
+      b.title = `${lbl}: ${s[i]}`;
+      col.appendChild(b);
+    });
+    const l = document.createElement('div');
+    l.className = 'bar-lbl'; l.textContent = lbl;
+    col.appendChild(l);
+    c.appendChild(col);
+  });
+}
+
+function buildReportBars() {
+  const revenues = [280,340,380,420,460,390,410,480,520,440,490,510];
+  const maxR = 520;
+  const c = document.getElementById('reportBars');
+  if (!c) return;
+  c.innerHTML = '';
+  months12.forEach((m,i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const b = document.createElement('div');
+    b.className = 'bar';
+    b.style.cssText = `height:${Math.round((revenues[i]/maxR)*130)}px;background:${i===3?'var(--a200)':'var(--g400)'};`;
+    b.title = `${m}: RWF ${revenues[i]}K`;
+    col.appendChild(b);
+    const l = document.createElement('div');
+    l.className = 'bar-lbl'; l.textContent = m;
+    col.appendChild(l);
+    c.appendChild(col);
+  });
+}
+
+function buildOrdersBars() {
+  const orders12 = [82,97,110,134,122,105,115,130,145,118,128,134];
+  const maxO = 145;
+  const c = document.getElementById('ordersBarChart');
+  if (!c) return;
+  orders12.forEach((v,i) => {
+    const col = document.createElement('div');
+    col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;justify-content:flex-end;height:100%;';
+    const b = document.createElement('div');
+    b.style.cssText = `width:100%;height:${Math.round(v/maxO*90)}px;background:${i===3?'var(--a200)':'var(--g200)'};border-radius:3px 3px 0 0;`;
+    const l = document.createElement('div');
+    l.style.cssText = 'font-size:9px;color:var(--g400);';
+    l.textContent = months12[i];
+    col.appendChild(b); col.appendChild(l);
+    c.appendChild(col);
+  });
+}
+
+/* ═══════════════════ CATEGORY BREAKDOWN ═══════════════════ */
+function renderCatBreakdown() {
+  const cats = [{n:'Fertilizers',pct:38,c:'var(--a200)'},{n:'Seeds',pct:27,c:'var(--g200)'},{n:'Tools',pct:18,c:'var(--g400)'},{n:'Irrigation',pct:12,c:'var(--t800)'},{n:'Pesticides',pct:5,c:'#aaa'}];
+  document.getElementById('catBreakdown').innerHTML = cats.map(cat => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:${cat.c};flex-shrink:0;"></div>
+      <div style="flex:1;font-size:11px;color:var(--g800);">${cat.n}</div>
+      <div style="flex:2;height:8px;background:var(--g50);border-radius:4px;overflow:hidden;"><div style="width:${cat.pct}%;height:100%;background:${cat.c};border-radius:4px;"></div></div>
+      <div style="font-size:11px;font-weight:600;color:var(--g900);width:28px;">${cat.pct}%</div>
+    </div>`).join('');
+}
+
+function renderRegionBreakdown() {
+  const regions = [{n:'Kigali',pct:48,c:'var(--g400)'},{n:'Northern',pct:22,c:'var(--g200)'},{n:'Southern',pct:16,c:'var(--a200)'},{n:'Eastern',pct:9,c:'var(--t800)'},{n:'Western',pct:5,c:'#aaa'}];
+  document.getElementById('regionBreakdown').innerHTML = regions.map(r => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:${r.c};flex-shrink:0;"></div>
+      <div style="flex:1;font-size:11px;color:var(--g800);">${r.n}</div>
+      <div style="flex:2;height:8px;background:var(--g50);border-radius:4px;overflow:hidden;"><div style="width:${r.pct}%;height:100%;background:${r.c};border-radius:4px;"></div></div>
+      <div style="font-size:11px;font-weight:600;color:var(--g900);width:28px;">${r.pct}%</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════ TOP PRODUCTS ═══════════════════ */
+function renderTopProducts() {
+  const top = [
+    {name:'NPK Fertilizer 50kg',cat:'Fertilizers',rev:'5,400,000',units:240},
+    {name:'Drip irrigation kit',cat:'Irrigation',rev:'2,492,000',units:28},
+    {name:'Maize seeds 5kg',cat:'Seeds',rev:'1,760,000',units:320},
+    {name:'Garden hoe',cat:'Tools',rev:'1,260,000',units:140},
+    {name:'Pesticide spray 1L',cat:'Pesticides',rev:'1,312,500',units:175},
+  ];
+  document.getElementById('topProductsBody').innerHTML = top.map(p => `
+    <tr><td><strong>${p.name}</strong></td><td>${p.cat}</td><td>RWF ${p.rev}</td><td>${p.units}</td></tr>`).join('');
+}
+
+/* ═══════════════════ SUMMARY TABLE ═══════════════════ */
+function renderSummary() {
+  document.getElementById('summaryBody').innerHTML = summary.map(s => `
+    <tr><td><strong>${s.month}</strong></td><td>${s.orders}</td><td>RWF ${s.rev}</td><td>${s.newC}</td><td>${s.del}</td><td>${s.ret}</td></tr>`).join('');
+}
+
+/* ═══════════════════ DASHBOARD WIDGETS ═══════════════════ */
+function renderRecentOrders() {
+  const colors = {Delivered:['#EAF3DE','#27500A'],Pending:['#FAEEDA','#633806'],Processing:['#E6F1FB','#0C447C']};
+  const initials = {'Jean Mutabazi':'JM','Amina Mukamana':'AM','Pierre Habimana':'PH','Claire Uwimana':'CU','Robert Nkurunziza':'RN'};
+  document.getElementById('recentOrdersList').innerHTML = orders.slice(0,5).map(o => {
+    const ini = o.customer.split(' ').map(x=>x[0]).join('').slice(0,2);
+    const [bg,fg] = colors[o.status]||['#eee','#333'];
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--g50);">
+      <div class="avatar" style="background:${bg};color:${fg};">${ini}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:500;">${o.customer}</div><div style="font-size:10px;color:var(--g600);">${o.product}</div></div>
+      <div style="text-align:right;"><div style="font-size:12px;font-weight:500;color:var(--g800);">RWF ${o.amount.toLocaleString()}</div>${statusPill(o.status)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderInventory() {
+  const items = [
+    {name:'Wheat seeds',pct:18,c:'var(--r400)'},
+    {name:'Urea fertilizer',pct:22,c:'#EF9F27'},
+    {name:'Irrigation pipes',pct:65,c:'var(--g400)'},
+    {name:'Maize seeds',pct:80,c:'var(--g400)'},
+    {name:'Garden hoes',pct:52,c:'var(--g400)'},
+  ];
+  document.getElementById('inventoryList').innerHTML = items.map(it => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--g50);">
+      <div style="flex:1;"><div style="font-size:11px;font-weight:500;">${it.name}</div>
+      <div class="prog"><div class="prog-fill" style="width:${it.pct}%;background:${it.c};"></div></div></div>
+      <div style="font-size:11px;font-weight:500;color:${it.pct<30?'var(--r600)':'var(--g600)'};">${it.pct}%</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════ DROPDOWNS ═══════════════════ */
+function toggleDropdown(id, e) {
+  e && e.stopPropagation();
+  const menu = document.getElementById(id);
+  const isOpen = menu.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) menu.classList.add('open');
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', closeAllDropdowns);
+
+/* ═══════════════════ LANGUAGE ═══════════════════ */
+const i18n = {
+  en: { dashboard:'Dashboard overview',products:'Products',orders:'Orders',customers:'Customers',deliveries:'Deliveries',reports:'Reports',adminusers:'Admin users',alerts:'3 alerts',signOut:'Sign out',manageAdmins:'Manage admin users',editProfile:'Edit profile',changePassword:'Change password',addAdmin:'Add admin',allAdminUsers:'All admin users',adminUsers:'Admin Users',cancel:'Cancel' },
+  fr: { dashboard:'Tableau de bord',products:'Produits',orders:'Commandes',customers:'Clients',deliveries:'Livraisons',reports:'Rapports',adminusers:'Admins',alerts:'3 alertes',signOut:'Se déconnecter',manageAdmins:'Gérer les admins',editProfile:'Modifier le profil',changePassword:'Changer le mot de passe',addAdmin:'Ajouter admin',allAdminUsers:'Tous les admins',adminUsers:'Utilisateurs admin',cancel:'Annuler' },
+  rw: { dashboard:'Ikibaho cy\'ubuyobozi',products:'Ibicuruzwa',orders:'Amalagura',customers:'Abakiliya',deliveries:'Gutanga',reports:'Raporo',adminusers:'Abayobozi',alerts:'Iburira 3',signOut:'Sohoka',manageAdmins:'Gucunga abayobozi',editProfile:'Hindura umwirondoro',changePassword:'Hindura ijambo banga',addAdmin:'Ongeraho umuyobozi',allAdminUsers:'Abayobozi bose',adminUsers:'Abayobozi',cancel:'Reka' },
+  sw: { dashboard:'Dashibodi',products:'Bidhaa',orders:'Maagizo',customers:'Wateja',deliveries:'Usafirishaji',reports:'Ripoti',adminusers:'Wasimamizi',alerts:'Tahadhari 3',signOut:'Toka',manageAdmins:'Simamia wasimamizi',editProfile:'Hariri wasifu',changePassword:'Badilisha nywila',addAdmin:'Ongeza msimamizi',allAdminUsers:'Wasimamizi wote',adminUsers:'Wasimamizi',cancel:'Ghairi' }
+};
+let currentLang = 'en';
+const langFlags = { en:'&#127479;&#127484;', fr:'&#127467;&#127479;', rw:'&#127479;&#127484;', sw:'&#127481;&#127487;' };
+
+function setLang(lang, label) {
+  currentLang = lang;
+  document.getElementById('currentLangLabel').textContent = label;
+  document.getElementById('currentFlag').innerHTML = langFlags[lang];
+  document.querySelectorAll('.lang-item').forEach(i => i.classList.remove('active-lang'));
+  event.target.classList.add('active-lang');
+  applyTranslations();
+  closeAllDropdowns();
+  showToast(lang === 'en' ? 'Language: English' : lang === 'fr' ? 'Langue: Français' : lang === 'rw' ? 'Ururimi: Kinyarwanda' : 'Lugha: Kiswahili');
+}
+
+function applyTranslations() {
+  const t = i18n[currentLang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+  // Update topbar title based on active page
+  const activePage = document.querySelector('.page.active');
+  if (activePage) {
+    const pageKey = activePage.id.replace('page-','');
+    if (t[pageKey]) document.getElementById('topbar-title').textContent = t[pageKey];
+  }
+}
+
+/* ═══════════════════ TOAST ═══════════════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ═══════════════════ SIGN OUT ═══════════════════ */
+function doSignOut() {
+  closeModal('signout');
+  showToast('Signing out...');
+  setTimeout(() => {
+    document.body.innerHTML = `<div style="min-height:100vh;background:var(--g900);display:flex;align-items:center;justify-content:center;font-family:'Segoe UI',sans-serif;">
+      <div style="background:#fff;border-radius:14px;padding:2.5rem 2rem;width:340px;text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:var(--g900);margin-bottom:4px;">Agricom</div>
+        <div style="font-size:12px;color:var(--g600);margin-bottom:1.8rem;">Admin Portal</div>
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--g50);margin:0 auto 1.2rem;display:flex;align-items:center;justify-content:center;">
+          <svg width="24" height="24" viewBox="0 0 15 15" fill="none" stroke="#27500A" stroke-width="1.4"><circle cx="7.5" cy="5" r="3"/><path d="M1.5 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:#173404;margin-bottom:4px;">Welcome back</div>
+        <div style="font-size:12px;color:#639922;margin-bottom:1.5rem;">You have been signed out successfully</div>
+        <input type="text" placeholder="Email" style="width:100%;padding:9px 12px;border:1px solid #C0DD97;border-radius:7px;font-size:13px;color:#173404;background:#EAF3DE;outline:none;margin-bottom:8px;">
+        <input type="password" placeholder="Password" style="width:100%;padding:9px 12px;border:1px solid #C0DD97;border-radius:7px;font-size:13px;color:#173404;background:#EAF3DE;outline:none;margin-bottom:14px;">
+        <button onclick="location.reload()" style="width:100%;padding:10px;background:#27500A;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;">Sign in</button>
+      </div>
+    </div>`;
+  }, 900);
+}
+
+/* ═══════════════════ ADMIN USERS DATA ═══════════════════ */
+let adminUsers = [
+  {initials:'AD',name:'Admin User',email:'admin@agricom.rw',role:'Super Admin',lastLogin:'Today, 4:12 PM',status:'Active',color:['#FAEEDA','#633806']},
+  {initials:'CM',name:'Claudine Mukamurenzi',email:'claudine@agricom.rw',role:'Manager',lastLogin:'Today, 1:05 PM',status:'Active',color:['#EAF3DE','#27500A']},
+  {initials:'BN',name:'Bernard Niyitanga',email:'bernard@agricom.rw',role:'Manager',lastLogin:'Apr 22, 2026',status:'Active',color:['#EAF3DE','#27500A']},
+  {initials:'SK',name:'Sandrine Kamanzi',email:'sandrine@agricom.rw',role:'Viewer',lastLogin:'Apr 20, 2026',status:'Active',color:['#E1F5EE','#085041']},
+  {initials:'PB',name:'Patrick Bizimungu',email:'patrick@agricom.rw',role:'Viewer',lastLogin:'Apr 15, 2026',status:'Active',color:['#E1F5EE','#085041']},
+];
+
+function renderAdminCards() {
+  const roleColors = {'Super Admin':['#FAEEDA','#633806'],Manager:['#EAF3DE','#27500A'],Viewer:['#E1F5EE','#085041']};
+  document.getElementById('adminUsersGrid').innerHTML = adminUsers.map((u,i) => {
+    const [bg,fg] = u.color;
+    return `<div class="admin-user-card">
+      <div class="auc-avatar" style="background:${bg};color:${fg};">${u.initials}</div>
+      <div class="auc-name">${u.name}</div>
+      <div class="auc-role">${u.role}</div>
+      <div class="auc-email">${u.email}</div>
+      <div style="font-size:10px;color:var(--g400);">Last login: ${u.lastLogin}</div>
+      <div class="auc-actions">
+        <button class="card-action" onclick="showToast('Editing ${u.name}')">Edit</button>
+        ${i > 0 ? `<button class="card-action" style="color:var(--r600);" onclick="removeAdmin(${i})">Remove</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAdminTable() {
+  document.getElementById('adminTableBody').innerHTML = adminUsers.map((u,i) => `
+    <tr>
+      <td><span class="avatar" style="background:${u.color[0]};color:${u.color[1]};">${u.initials}</span> ${u.name}</td>
+      <td style="color:var(--g600);">${u.email}</td>
+      <td>${statusPill(u.role === 'Super Admin' ? 'Admin' : u.role === 'Manager' ? 'Vendor' : 'Farmer')}<span style="margin-left:4px;font-size:11px;">${u.role}</span></td>
+      <td style="color:var(--g600);">${u.lastLogin}</td>
+      <td>${statusPill('Active')}</td>
+      <td style="display:flex;gap:6px;">
+        <button class="card-action" onclick="showToast('Editing ${u.name}')">Edit</button>
+        ${i > 0 ? `<button class="card-action" style="color:var(--r600);" onclick="removeAdmin(${i})">Remove</button>` : '<span style="font-size:11px;color:var(--g400);">You</span>'}
+      </td>
+    </tr>`).join('');
+}
+
+function addAdminUser() {
+  const first = document.getElementById('newAdminFirst').value.trim();
+  const last = document.getElementById('newAdminLast').value.trim();
+  const email = document.getElementById('newAdminEmail').value.trim();
+  const role = document.getElementById('newAdminRole').value;
+  if (!first || !email) { showToast('Please fill required fields'); return; }
+  const name = `${first} ${last}`.trim();
+  const initials = (first[0]+(last[0]||'')).toUpperCase();
+  const colorMap = {'Super Admin':['#FAEEDA','#633806'],Manager:['#EAF3DE','#27500A'],Viewer:['#E1F5EE','#085041']};
+  adminUsers.push({initials, name, email: email||`${first.toLowerCase()}@agricom.rw`, role, lastLogin:'Just now', status:'Active', color: colorMap[role]});
+  renderAdminCards(); renderAdminTable();
+  closeModal('addAdmin');
+  document.getElementById('newAdminFirst').value = '';
+  document.getElementById('newAdminLast').value = '';
+  document.getElementById('newAdminEmail').value = '';
+  showToast(`Admin user "${name}" added`);
+}
+
+function removeAdmin(idx) {
+  const name = adminUsers[idx].name;
+  adminUsers.splice(idx, 1);
+  renderAdminCards(); renderAdminTable();
+  showToast(`Removed ${name}`);
+}
+
+renderAdminCards();
+renderAdminTable();
+renderRecentOrders();
+renderInventory();
+renderProducts();
+renderOrders();
+renderCustomers();
+renderDeliveries();
+renderDistrictBars();
+buildReportBars();
+buildOrdersBars();
+renderCatBreakdown();
+renderRegionBreakdown();
+renderTopProducts();
+renderSummary();
+
+</script>
+</body>
+</html>
